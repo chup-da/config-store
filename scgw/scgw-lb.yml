@@ -1,0 +1,51 @@
+
+
+#https://raw.githubusercontent.com/chupdachups/config-store/main/scgw/scgw-lb.yml
+
+eureka:
+  client: 
+    register-with-eureka: true 
+    fetch-registry: true 
+    service-url:
+      defaultZone: ${eureka_servers:http://localhost:8761/eureka}
+
+
+spring:
+  profiles:
+    active: ${profile:local}
+    include: common
+  cloud: 
+    gateway:
+      routes:
+      - id: webserver
+        uri: lb://webserver
+        #https://cloud.spring.io/spring-cloud-gateway/reference/html/#gateway-request-predicates-factories
+        predicates:
+        - name: Path
+          args:
+            regexp: /webserver/**
+        filters:
+        - name: RewritePath
+          args:
+            regexp: /webserver/
+            replacement: / 
+      
+  
+  
+  
+  
+  rabbitmq:
+    host: ${mq_host:localhost}
+    port: ${mq_port:5672}
+    username: ${mq_id:guest}
+    password: ${mq_pw:guest}  
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "gateway"
+  endpoint:
+    gateway:
+      enabled: true
